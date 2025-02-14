@@ -519,12 +519,12 @@ class FirebaseFunctions {
 
       // Loop through and delete each matching document
       for (var doc in querySnapshot.docs) {
-        await _firestore.collection('services').doc(doc.id).delete();
+        await _firestore.collection('Books').doc(doc.id).delete();
       }
 
-      print('Service(s) deleted successfully');
+      print('Books(s) deleted successfully');
     } catch (e) {
-      print('Error deleting service: $e');
+      print('Error deleting Books: $e');
     }
   }
 

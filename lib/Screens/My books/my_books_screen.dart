@@ -38,7 +38,7 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
             ),
           ],
         ),
-        backgroundColor: Color(0xFF56ab91),
+        backgroundColor: Colors.blueAccent,
       ),
       body: SingleChildScrollView(
         child: Padding(
