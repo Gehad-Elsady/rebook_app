@@ -26,8 +26,39 @@ class _SellBooksScreenState extends State<SellBooksScreen> {
   bool _isUploading = false;
 
   // Dropdown variables
-  // String? _selectedServiceType;
-  // final List<String> _serviceTypes = ['Seeds', 'Equipment', "crops"];
+  String? _selectedServiceType;
+  final List<String> _serviceTypes = [
+    'School Books',
+    'University Books',
+    'Reference Books',
+    'Textbooks',
+    'Novels',
+    'Short Stories',
+    'Comics & Graphic Novels',
+    'Biographies & Autobiographies',
+    'Science',
+    'Mathematics',
+    'History',
+    'Geography',
+    'Languages',
+    'Religious Books',
+    'Art & Design',
+    'Engineering',
+    'Medical',
+    'Law',
+    'Economics',
+    'Psychology',
+    'Philosophy',
+    'Study Guides',
+    'Exam Papers',
+    'Handouts',
+    'Notebooks',
+    'Workbooks',
+    'Children’s Books',
+    'Cookbooks',
+    'Self-Help',
+    'Technology & IT'
+  ];
 
   // Pick an image
   Future<void> _pickImage() async {
@@ -65,6 +96,7 @@ class _SellBooksScreenState extends State<SellBooksScreen> {
           'description': _descriptionController.text.trim(),
           'price': _priceController.text.trim(),
           'image': imageUrl,
+          'type': _selectedServiceType,
           'createdAt': Timestamp.now(),
           'userId': FirebaseAuth.instance.currentUser!.uid
         });
@@ -227,57 +259,57 @@ class _SellBooksScreenState extends State<SellBooksScreen> {
                 SizedBox(height: 16),
 
                 // Service Type Dropdown
-                // DropdownButtonFormField<String>(
-                //   style: const TextStyle(color: Colors.black, fontSize: 20),
-                //   decoration: InputDecoration(
-                //     labelText: 'Book Type',
-                //     labelStyle: const TextStyle(
-                //       color: Colors.black,
-                //       fontSize: 20,
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //     // Define the border
-                //     border: OutlineInputBorder(
-                //       borderRadius:
-                //           BorderRadius.circular(10.0), // Rounded corners
-                //       borderSide: const BorderSide(
-                //         color: Colors.black, // Border color
-                //         width: 2.0, // Border width
-                //       ),
-                //     ),
-                //     enabledBorder: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(10.0),
-                //       borderSide: const BorderSide(
-                //         color: Colors.black, // Border color when enabled
-                //         width: 2.0, // Border width
-                //       ),
-                //     ),
-                //     focusedBorder: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(10.0),
-                //       borderSide: const BorderSide(
-                //         color: Colors.black, // Border color when focused
-                //         width: 2.0, // Border width
-                //       ),
-                //     ),
-                //   ),
-                //   value: _selectedServiceType,
-                //   icon: const Icon(Icons.arrow_drop_down,
-                //       color: Colors.black), // black dropdown icon
-                //   dropdownColor: Color.fromARGB(255, 13, 56, 43),
-                //   items: _serviceTypes
-                //       .map((type) => DropdownMenuItem(
-                //             value: type,
-                //             child: Text(type),
-                //           ))
-                //       .toList(),
-                //   onChanged: (value) {
-                //     setState(() {
-                //       _selectedServiceType = value;
-                //     });
-                //   },
-                //   validator: (value) =>
-                //       value == null ? 'Please select a service type' : null,
-                // ),
+                DropdownButtonFormField<String>(
+                  style: const TextStyle(color: Colors.black, fontSize: 20),
+                  decoration: InputDecoration(
+                    labelText: 'Book Type',
+                    labelStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    // Define the border
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(10.0), // Rounded corners
+                      borderSide: const BorderSide(
+                        color: Colors.black, // Border color
+                        width: 2.0, // Border width
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(
+                        color: Colors.black, // Border color when enabled
+                        width: 2.0, // Border width
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(
+                        color: Colors.black, // Border color when focused
+                        width: 2.0, // Border width
+                      ),
+                    ),
+                  ),
+                  value: _selectedServiceType,
+                  icon: const Icon(Icons.arrow_drop_down,
+                      color: Colors.black), // black dropdown icon
+                  dropdownColor: Colors.white,
+                  items: _serviceTypes
+                      .map((type) => DropdownMenuItem(
+                            value: type,
+                            child: Text(type),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedServiceType = value;
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? 'Please select a service type' : null,
+                ),
                 SizedBox(height: 16),
 
                 // Image Picker

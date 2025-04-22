@@ -1,5 +1,8 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:rebook_app/Screens/Search/search_screen.dart';
+import 'package:rebook_app/Screens/cart/cart-screen.dart';
+import 'package:rebook_app/Screens/history/historyscreen.dart';
 import 'package:rebook_app/Screens/home/tabs/home_tab.dart';
 import 'package:rebook_app/Screens/home/tabs/profile_tab.dart';
 import 'package:rebook_app/Screens/test.dart';
@@ -67,10 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<Widget> screens = [
-    Test1(),
-    Test2(),
+    BooksSearchPage(),
+    HistoryScreen(),
     HomeTab(),
-    Test3(),
+    CartScreen(),
     ProfileTab(),
   ];
 }

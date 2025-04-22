@@ -1,0 +1,6 @@
+class KConstants {
+  String apiKey =
+      'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRBek9EZ3hPQ3dpYm1GdFpTSTZJbWx1YVhScFlXd2lmUS5TakM2dEtMdmZuSnFIQVB0WDh1aktzQXRka1o4dTFLWnJETjNOc05QS1lrQ2t1M1ZaYTl4WkJIblREbHBUMEpGdmVCaEV3UllVSUtQUFA0aEJXR1hsUQ==';
+
+  var cardPaymentMethodIntegrationId = 5059189;
+}

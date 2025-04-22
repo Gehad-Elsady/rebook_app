@@ -77,9 +77,9 @@ class _SignUpPageState extends State<SignUpPage> {
                         if (value == null || value.isEmpty) {
                           return "Please enter your age";
                         }
-                        if (int.parse(value) < 20) {
-                          return "Sorry, age must be at least 20";
-                        }
+                        // if (int.parse(value) < 20) {
+                        //   return "Sorry, age must be at least 20";
+                        // }
                         return null;
                       },
                       controller: ageController,

@@ -8,10 +8,19 @@ import 'package:rebook_app/Screens/Auth/signup-screen.dart';
 import 'package:rebook_app/Screens/My%20books/my_books_screen.dart';
 import 'package:rebook_app/Screens/My%20books/update_books.dart';
 import 'package:rebook_app/Screens/OnBoarding/boarding-screen.dart';
+import 'package:rebook_app/Screens/Search/search_screen.dart';
 import 'package:rebook_app/Screens/SplashScreen/splash-screen.dart';
 import 'package:rebook_app/Screens/add-services/sell_books_screen.dart';
+import 'package:rebook_app/Screens/books/categories_screen.dart';
+import 'package:rebook_app/Screens/books/info-screen.dart';
+import 'package:rebook_app/Screens/cart/cart-screen.dart';
+import 'package:rebook_app/Screens/contact/contact-screen.dart';
+import 'package:rebook_app/Screens/history/historyscreen.dart';
 import 'package:rebook_app/Screens/home/home-screen.dart';
+import 'package:rebook_app/Screens/my%20Requests/my_requests_screen.dart';
+import 'package:rebook_app/Screens/profile/user-profile-screen.dart';
 import 'package:rebook_app/backend/firebase_options.dart';
+import 'package:rebook_app/notifications/notification.dart';
 import 'package:rebook_app/provider/check-user.dart';
 import 'package:rebook_app/provider/finish-onboarding.dart';
 
@@ -21,14 +30,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Optionally, initialize Firebase Analytics
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   // Initialize Firebase Messaging with error handling
-  // MyNotification.initialize();
-  //   await FirebaseAppCheck.instance.activate(
-  //   androidProvider: AndroidProvider.playIntegrity,
-  //   appleProvider: AppleProvider.deviceCheck,
-  // );
+  MyNotification.initialize();
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => FinishOnboarding()),
     ChangeNotifierProvider(create: (_) => CheckUser()),
@@ -49,18 +53,17 @@ class MyApp extends StatelessWidget {
         OnboardingScreen.routeName: (context) => OnboardingScreen(),
         LoginPage.routeName: (context) => LoginPage(),
         SignUpPage.routeName: (context) => SignUpPage(),
-        // UserProfile.routeName: (context) => UserProfile(),
         SellBooksScreen.routeName: (context) => SellBooksScreen(),
-        // InfoScreen.routeName: (context) => InfoScreen(),
-        // AddEng.routeName: (context) => AddEng(),
-        // ContactScreen.routeName: (context) => ContactScreen(),
-        // CartScreen.routeName: (context) => CartScreen(),
-        // HistoryScreen.routeName: (context) => HistoryScreen(),
-        // AddLandPage.routeName: (context) => AddLandPage(),
-        // LandInfoScreen.routeName: (context) => LandInfoScreen(),
         MyBooksScreen.routeName: (context) => MyBooksScreen(),
         UpdateBooks.routeName: (context) => UpdateBooks(),
-        // MyRequestsScreen.routeName: (context) => MyRequestsScreen(),
+        BooksCategoriesScreen.routeName: (context) => BooksCategoriesScreen(),
+        BooksSearchPage.routeName: (context) => BooksSearchPage(),
+        UserProfile.routeName: (context) => UserProfile(),
+        CartScreen.routeName: (context) => CartScreen(),
+        InfoScreen.routeName: (context) => InfoScreen(),
+        MyRequestsScreen.routeName: (context) => MyRequestsScreen(),
+        HistoryScreen.routeName: (context) => HistoryScreen(),
+        ContactScreen.routeName: (context) => ContactScreen(),
       },
     );
   }
