@@ -9,7 +9,7 @@ import 'package:rebook_app/photos/images.dart';
 class LoginPage extends StatefulWidget {
   static const String routeName = 'login page';
 
-  LoginPage({super.key});
+  const LoginPage({super.key});
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -19,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool _isPasswordHidden = true;
 
   @override
   Widget build(BuildContext context) {
@@ -28,19 +29,17 @@ class _LoginPageState extends State<LoginPage> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
-            key: _formKey, // Form Key for validation
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 100), // Adding some spacing at the top
+                const SizedBox(height: 100),
 
-                // Logo or Image at the top
                 Image.asset(Photos.login, height: 200),
 
-                const SizedBox(
-                    height: 30), // Spacing between image and text fields
+                const SizedBox(height: 30),
 
-                // Email TextFormField
+                // Email
                 TextFormField(
                   controller: emailController,
                   decoration: InputDecoration(
@@ -53,13 +52,12 @@ class _LoginPageState extends State<LoginPage> {
                         .bodyMedium
                         ?.copyWith(fontSize: 15, color: Colors.black),
                     enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(
-                          color: Colors.black,
-                        )),
-                    prefixIcon: Icon(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: const BorderSide(color: Colors.black),
+                    ),
+                    prefixIcon: const Icon(
                       Icons.email,
-                      color: Color(0xff0000000),
+                      color: Color(0xff000000),
                     ),
                   ),
                   keyboardType: TextInputType.emailAddress,
@@ -77,10 +75,10 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 30),
 
-                // Password TextFormField
+                // Password
                 TextFormField(
                   controller: passwordController,
-                  obscureText: true, // Hide password
+                  obscureText: _isPasswordHidden,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
@@ -91,13 +89,25 @@ class _LoginPageState extends State<LoginPage> {
                         .bodyMedium
                         ?.copyWith(fontSize: 15, color: Colors.black),
                     enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(
-                          color: Colors.black,
-                        )),
-                    prefixIcon: Icon(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: const BorderSide(color: Colors.black),
+                    ),
+                    prefixIcon: const Icon(
                       Icons.lock,
                       color: Color(0xff000000),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordHidden
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordHidden = !_isPasswordHidden;
+                        });
+                      },
                     ),
                   ),
                   validator: (value) {
@@ -116,44 +126,49 @@ class _LoginPageState extends State<LoginPage> {
                 // Login Button
                 ElevatedButton(
                   onPressed: () {
-                    // Navigator.pushReplacementNamed(
-                    //     context, HomeScreen.routeName);
-                    FirebaseFunctions.Login(onSuccess: () async {
-                      // user.initUser();
-                      await Future.delayed(Duration(milliseconds: 500));
-                      Navigator.pushReplacementNamed(
-                          context, HomeScreen.routeName);
-                    }, onError: (e) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text("Error"),
-                          content: Text(e.toString()),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text('OK'),
+                    if (_formKey.currentState!.validate()) {
+                      FirebaseFunctions.Login(
+                        onSuccess: () async {
+                          await Future.delayed(
+                              const Duration(milliseconds: 500));
+                          Navigator.pushReplacementNamed(
+                              context, HomeScreen.routeName);
+                        },
+                        onError: (e) {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Error"),
+                              content: Text(e.toString()),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          );
+                        },
+                        emailController.text,
+                        passwordController.text,
                       );
-                    }, emailController.text, passwordController.text);
+                    }
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
                   child: const Text(
                     'Login',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                 ),

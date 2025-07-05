@@ -10,6 +10,7 @@ import 'package:rebook_app/Screens/history/model/historymaodel.dart';
 import 'package:rebook_app/Screens/profile/model/profilemodel.dart';
 import 'package:rebook_app/location/model/locationmodel.dart';
 import 'package:rebook_app/notifications/model/notification_model.dart';
+import 'package:rebook_app/models/payment_method.dart';
 
 class FirebaseFunctions {
   static SignUp(String emailAddress, String password,
@@ -85,6 +86,85 @@ class FirebaseFunctions {
 
   static signOut() {
     FirebaseAuth.instance.signOut();
+  }
+
+  //---------------------------Payment Methods---------------------------
+
+  static CollectionReference<PaymentMethod> getPaymentMethodsCollection() {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      throw Exception('User not authenticated');
+    }
+    
+    return FirebaseFirestore.instance
+        .collection('Users')
+        .doc(uid)
+        .collection('paymentMethods')
+        .withConverter<PaymentMethod>(
+          fromFirestore: PaymentMethod.fromFirestore,
+          toFirestore: (PaymentMethod method, _) => method.toFirestore(),
+        );
+  }
+
+  static Future<void> addPaymentMethod(PaymentMethod method) async {
+    final collection = getPaymentMethodsCollection();
+    
+    // If setting as default, unset any existing default
+    if (method.isDefault) {
+      await _unsetExistingDefault();
+    }
+    
+    await collection.add(method);
+  }
+
+  static Future<List<PaymentMethod>> getUserPaymentMethods() async {
+    try {
+      final snapshot = await getPaymentMethodsCollection()
+          .orderBy('createdAt', descending: true)
+          .get();
+      
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print('Error getting payment methods: $e');
+      rethrow;
+    }
+  }
+
+  static Future<void> setDefaultPaymentMethod(String methodId) async {
+    final collection = getPaymentMethodsCollection();
+    
+    // Start a batch to ensure atomic updates
+    final batch = FirebaseFirestore.instance.batch();
+    
+    // First, unset any existing default
+    final existingDefaults = await collection.where('isDefault', isEqualTo: true).get();
+    for (var doc in existingDefaults.docs) {
+      batch.update(doc.reference, {'isDefault': false});
+    }
+    
+    // Then set the new default
+    batch.update(collection.doc(methodId), {'isDefault': true});
+    
+    await batch.commit();
+  }
+
+  static Future<void> _unsetExistingDefault() async {
+    try {
+      final collection = getPaymentMethodsCollection();
+      final existingDefaults = await collection.where('isDefault', isEqualTo: true).get();
+      
+      final batch = FirebaseFirestore.instance.batch();
+      for (var doc in existingDefaults.docs) {
+        batch.update(doc.reference, {'isDefault': false});
+      }
+      
+      if (existingDefaults.docs.isNotEmpty) {
+        await batch.commit();
+      }
+    } catch (e) {
+      print('Error unsetting default payment method: $e');
+      rethrow;
+    }
   }
   //---------------------------User Profile---------------------------
 
@@ -509,42 +589,88 @@ class FirebaseFunctions {
     final FirebaseFirestore _firestore = FirebaseFirestore.instance;
     final String uid = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-    return _firestore.collection('History').snapshots().map((snapshot) {
-      return snapshot.docs.where((doc) {
-        final data = doc.data();
-        // Check if any item in the 'items' list contains a serviceModel with userId matching the current user's uid
-        final items = data['items'] as List<dynamic>?;
-        if (items != null) {
-          // Filter items by checking if any item's serviceModel userId matches the current uid
-          return items.any((item) =>
-              item['serviceModel'] != null &&
-              item['serviceModel']['userId'] == uid);
-        }
-        return false;
-      }).map((doc) {
-        final data = doc.data();
-        return HistoryModel(
-          timestamp: data['timestamp'] ?? 0,
-          userId: data['userId'] ?? "no id",
-          serviceModel: data['serviceModel'] != null
-              ? ServiceModel.fromJson(data['serviceModel'])
-              : null,
-          locationModel: data['locationModel'] != null
-              ? LocationModel.fromMap(data['locationModel'])
-              : null,
-          items: data['items'] != null
-              ? (data['items'] as List<dynamic>)
-                  .map((item) => CartModel.fromMap(item))
-                  .toList()
-              : [],
-          orderType: data['OrderType'] ?? "No Order Type",
-          id: data['id'] ?? "No Id",
-          orderStatus: data['orderStatus'] ?? "No Status",
-          orderOwnerName: data['orderOwnerName'] ?? "No Name",
-          orderOwnerPhone: data['orderOwnerPhone'] ?? "No Phone",
-        );
-      }).toList();
-    });
+    if (uid.isEmpty) {
+      print('User is not authenticated');
+      return Stream.value([]);
+    }
+
+    try {
+      return _firestore
+          .collection('History')
+          .where('userId', isEqualTo: uid)
+          .orderBy('timestamp', descending: true)
+          .snapshots()
+          .handleError((error) {
+            print('Error fetching requests: $error');
+            return [];
+          })
+          .map((snapshot) {
+            return snapshot.docs.map((doc) {
+              try {
+                final data = doc.data() as Map<String, dynamic>;
+                
+                // Safely parse items
+                List<CartModel> items = [];
+                if (data['items'] != null && data['items'] is List) {
+                  items = (data['items'] as List).map((item) {
+                    try {
+                      return CartModel.fromMap(Map<String, dynamic>.from(item));
+                    } catch (e) {
+                      print('Error parsing cart item: $e');
+                      return null;
+                    }
+                  }).whereType<CartModel>().toList();
+                }
+
+                // Safely parse service model
+                ServiceModel? serviceModel;
+                if (data['serviceModel'] != null) {
+                  try {
+                    serviceModel = ServiceModel.fromJson(
+                      Map<String, dynamic>.from(data['serviceModel']),
+                    );
+                  } catch (e) {
+                    print('Error parsing service model: $e');
+                  }
+                }
+
+                // Safely parse location model
+                LocationModel? locationModel;
+                if (data['locationModel'] != null) {
+                  try {
+                    locationModel = LocationModel.fromMap(
+                      Map<String, dynamic>.from(data['locationModel']),
+                    );
+                  } catch (e) {
+                    print('Error parsing location model: $e');
+                  }
+                }
+
+                return HistoryModel(
+                  id: doc.id,
+                  userId: data['userId']?.toString() ?? uid,
+                  timestamp: data['timestamp'] is int 
+                      ? data['timestamp'] 
+                      : DateTime.now().millisecondsSinceEpoch,
+                  orderType: (data['orderType'] ?? data['OrderType'] ?? 'standard').toString(),
+                  orderStatus: (data['orderStatus'] ?? 'pending').toString(),
+                  items: items,
+                  serviceModel: serviceModel,
+                  locationModel: locationModel,
+                  // Optional fields with null checks
+                  orderOwnerName: (data['orderOwnerName'] ?? '').toString(),
+                  orderOwnerPhone: (data['orderOwnerPhone'] ?? '').toString(),
+                );
+              } catch (e) {
+                print('Error parsing document ${doc.id}: $e');
+                return null;
+              }
+            }).whereType<HistoryModel>().toList();
+          });
+    } catch (e) {
+      print('Error setting up request stream: $e');
+      return Stream.value([]);
+    }
   }
 
   static Future<void> acceptOrderStatus(

@@ -83,14 +83,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Service Type: ${history.orderType ?? 'N/A'}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
+                        // Text(
+                        //   'Service Type: ${history.orderType ?? 'N/A'}',
+                        //   style: const TextStyle(
+                        //     fontWeight: FontWeight.bold,
+                        //     fontSize: 18,
+                        //     color: Colors.white,
+                        //   ),
+                        // ),
                         const SizedBox(height: 8),
                         Text(
                           "Timestamp: $formattedTime",

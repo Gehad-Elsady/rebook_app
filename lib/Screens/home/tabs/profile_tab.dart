@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:rebook_app/Screens/Auth/login-screen.dart';
 import 'package:rebook_app/Screens/My%20books/my_books_screen.dart';
 import 'package:rebook_app/Screens/add-services/sell_books_screen.dart';
 import 'package:rebook_app/Screens/contact/contact-screen.dart';
 import 'package:rebook_app/Screens/my%20Requests/my_requests_screen.dart';
 import 'package:rebook_app/Screens/profile/user-profile-screen.dart';
+import 'package:rebook_app/Screens/profile/payment_methods_screen.dart';
 import 'package:rebook_app/backend/firebase_functions.dart';
 
 class ProfileTab extends StatelessWidget {
@@ -136,7 +138,14 @@ class ProfileTab extends StatelessWidget {
                   // Navigate to ContactScreen
                   Navigator.pushNamed(context, ContactScreen.routeName);
                 }),
-                _buildProfileOption(Icons.logout, 'Logout', () {}),
+                _buildProfileOption(Icons.payment, 'Payment Methods', () {
+                  // Navigate to PaymentMethodsScreen
+                  Navigator.pushNamed(context, PaymentMethodsScreen.routeName);
+                }),
+                _buildProfileOption(Icons.logout, 'Logout', () {
+                  FirebaseFunctions.signOut();
+                  Navigator.pushReplacementNamed(context, LoginPage.routeName);
+                }),
               ],
             ),
           ),

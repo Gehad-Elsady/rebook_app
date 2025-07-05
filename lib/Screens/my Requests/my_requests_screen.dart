@@ -27,7 +27,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Requests",
+          "My Requests",
           style: GoogleFonts.domine(
             fontSize: 30,
             color: Colors.blue,
@@ -41,19 +41,58 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
         child: StreamBuilder<List<HistoryModel>>(
           stream: FirebaseFunctions.getMyRequestStream(),
           builder: (context, snapshot) {
+            // Debug info
+            print('StreamBuilder - Connection state: ${snapshot.connectionState}');
+            print('StreamBuilder - Has data: ${snapshot.hasData}');
+            if (snapshot.hasError) {
+              print('StreamBuilder - Error: ${snapshot.error}');
+              print('Stack trace: ${snapshot.stackTrace}');
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red, size: 60),
+                    SizedBox(height: 16),
+                    Text(
+                      'Error loading requests',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      '${snapshot.error}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ],
+                ),
+              );
+            }
+            
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             }
-            if (snapshot.hasError) {
+            
+            final requests = snapshot.data ?? [];
+            print('Number of requests: ${requests.length}');
+            
+            if (requests.isEmpty) {
               return Center(
-                  child: Text("Error loading history: ${snapshot.error}"));
-            }
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(
-                child: Lottie.asset(
-                    "assets/lotties/Animation - 1738160219532.json",
-                    height: 400,
-                    width: double.infinity),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Lottie.asset(
+                      "assets/lotties/Animation - 1738160219532.json",
+                      height: 300,
+                      width: 300,
+                      fit: BoxFit.contain,
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'No requests found',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  ],
+                ),
               );
             }
 
@@ -79,11 +118,11 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          '${"service-type"}: ${history.orderType ?? 'N/A'}',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
+                        // Text(
+                        //   '${"service-type"}: ${history.orderType ?? 'N/A'}',
+                        //   style: TextStyle(
+                        //       fontWeight: FontWeight.bold, fontSize: 16),
+                        // ),
                         SizedBox(height: 8),
                         Text(
                           "${"timestamp"}: ${formattedTime}",

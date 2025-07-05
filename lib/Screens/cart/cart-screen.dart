@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:rebook_app/Screens/cart/widget/cartitem.dart';
+import 'package:rebook_app/Screens/checkout/address_form_screen.dart';
 import 'package:rebook_app/Screens/history/model/historymaodel.dart';
 import 'package:rebook_app/Screens/profile/model/profilemodel.dart';
 import 'package:rebook_app/backend/firebase_functions.dart';
@@ -171,19 +172,12 @@ class CartScreen extends StatelessWidget {
                               },
                             );
                           } else {
-                            // Log the user's name for debugging
-                            print(
-                                '--------------Name is ${profileModel.firstName}');
-                            HistoryModel historymaodel = HistoryModel(
-                              userId: FirebaseAuth.instance.currentUser!.uid,
-                              items: snapshot.data!,
-                              orderType: "Cart",
-                            );
+                            // Navigate to address form screen
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Gps(
-                                  historymaodel: historymaodel,
+                                builder: (context) => AddressFormScreen(
+                                  cartItems: snapshot.data!,
                                   totalPrice: totalPrice,
                                 ),
                               ),

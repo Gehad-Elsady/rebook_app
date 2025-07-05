@@ -1,12 +1,10 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:rebook_app/Screens/add-services/model/service-model.dart';
 import 'package:rebook_app/Screens/cart/cart-screen.dart';
-import 'package:rebook_app/Screens/cart/model/cart-model.dart';
 import 'package:rebook_app/Screens/history/historyscreen.dart';
 import 'package:rebook_app/Screens/history/model/historymaodel.dart';
+import 'package:rebook_app/Screens/home/home-screen.dart';
 import 'package:rebook_app/backend/firebase_functions.dart';
 import 'package:rebook_app/paymob/paymob_manager.dart';
 
@@ -26,87 +24,78 @@ class PaymentScreen extends StatelessWidget {
       ),
       body: InAppWebView(
         initialOptions: InAppWebViewGroupOptions(
-          crossPlatform: InAppWebViewOptions(javaScriptEnabled: true),
-        ),
-        onWebViewCreated: (controller) async {
+            crossPlatform: InAppWebViewOptions(javaScriptEnabled: true)),
+        onWebViewCreated: (controller) {
           _webViewController = controller;
-
-          try {
-            final paymentKey =
-                await PaymobManager().getPaymentKey(totalPrice, "EGP");
-
+          PaymobManager()
+              .getPaymentKey(totalPrice, "EGP")
+              .then((String paymentKey) {
             _webViewController?.loadUrl(
               urlRequest: URLRequest(
                 url: WebUri(
-                    "https://accept.paymob.com/api/acceptance/iframes/915260?payment_token=$paymentKey"),
+                  "https://accept.paymob.com/api/acceptance/iframes/915260?payment_token=$paymentKey",
+                ),
               ),
             );
-          } catch (e) {
-            _showErrorDialog(context, "Error while initializing payment.");
-          }
+          });
         },
         onLoadStop: (controller, url) {
-          if (url == null || !url.queryParameters.containsKey('success'))
-            return;
-
-          final success = url.queryParameters['success'];
-
-          if (success == 'true') {
-            _handlePaymentSuccess(context);
-          } else if (success == 'false') {
-            _showErrorDialog(context, "Payment Failed",
-                redirectTo: CartScreen.routeName);
-          } else {
-            _showErrorDialog(context, "Payment Canceled",
-                redirectTo: CartScreen.routeName);
+          if (url != null && url.queryParameters.containsKey('success')) {
+            if (url.queryParameters['success'] == 'true') {
+              FirebaseFunctions.orderHistory(historymaodel!);
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text("Payment Done"),
+                    actions: [
+                      TextButton(
+                        child: Text("OK"),
+                        onPressed: () {
+                          Navigator.pushNamed(context, HomeScreen.routeName);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+              print("Payment Done");
+            } else if (url.queryParameters['success'] == 'false') {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text("Payment Failed"),
+                    actions: [
+                      TextButton(
+                        child: Text("OK"),
+                        onPressed: () {
+                          Navigator.pushNamed(context, CartScreen.routeName);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+              print("Payment Failed");
+            } else {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                        title: Text("Payment Canceled"),
+                        actions: [
+                          TextButton(
+                              child: Text("OK"),
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                    context, CartScreen.routeName);
+                              })
+                        ]);
+                  });
+            }
           }
         },
-      ),
-    );
-  }
-
-  void _handlePaymentSuccess(BuildContext context) {
-    FirebaseFunctions.orderHistory(historymaodel!);
-
-    final List<CartModel>? items = historymaodel?.items;
-    for (final item in items ?? []) {
-      // NotificationBack.sendPlacedOrderNotification(item.userId!);
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("✅ Payment Done"),
-        actions: [
-          TextButton(
-            child: Text("OK"),
-            onPressed: () {
-              Navigator.pushNamed(context, HistoryScreen.routeName);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showErrorDialog(BuildContext context, String message,
-      {String? redirectTo}) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(message),
-        actions: [
-          TextButton(
-            child: Text("OK"),
-            onPressed: () {
-              if (redirectTo != null) {
-                Navigator.pushNamed(context, redirectTo);
-              } else {
-                Navigator.pop(context);
-              }
-            },
-          ),
-        ],
       ),
     );
   }

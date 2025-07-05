@@ -1,7 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 import 'package:rebook_app/Screens/Auth/login-screen.dart';
 import 'package:rebook_app/Screens/Auth/signup-screen.dart';
@@ -19,6 +18,7 @@ import 'package:rebook_app/Screens/history/historyscreen.dart';
 import 'package:rebook_app/Screens/home/home-screen.dart';
 import 'package:rebook_app/Screens/my%20Requests/my_requests_screen.dart';
 import 'package:rebook_app/Screens/profile/user-profile-screen.dart';
+import 'package:rebook_app/Screens/profile/payment_methods_screen.dart';
 import 'package:rebook_app/backend/firebase_options.dart';
 import 'package:rebook_app/notifications/notification.dart';
 import 'package:rebook_app/provider/check-user.dart';
@@ -64,6 +64,7 @@ class MyApp extends StatelessWidget {
         MyRequestsScreen.routeName: (context) => MyRequestsScreen(),
         HistoryScreen.routeName: (context) => HistoryScreen(),
         ContactScreen.routeName: (context) => ContactScreen(),
+        PaymentMethodsScreen.routeName: (context) => PaymentMethodsScreen(),
       },
     );
   }

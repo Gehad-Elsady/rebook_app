@@ -47,7 +47,7 @@ class _GpsState extends State<Gps> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("GPS"),
+        title: const Text("GPS",style: TextStyle(color: Colors.blue),),
         centerTitle: true,
       ),
       body: GoogleMap(
@@ -143,6 +143,7 @@ class _GpsState extends State<Gps> {
     }
     return _permissionGranted == PermissionStatus.granted;
   }
+
 
   Future<bool> isServicesEnabled() async {
     _serviceEnabled = await location.serviceEnabled();
